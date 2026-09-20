@@ -1,0 +1,25 @@
+name: Controller dialect support
+description: Propose a documented and independently testable dialect boundary.
+title: "[Dialect]: "
+labels: [enhancement, dialect]
+body:
+  - type: input
+    attributes:
+      label: Controller and dialect
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Public specification sources
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Proposed supported subset
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Synthetic conformance cases
+    validations:
+      required: true
