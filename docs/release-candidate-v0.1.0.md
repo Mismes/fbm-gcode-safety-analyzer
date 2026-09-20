@@ -1,6 +1,6 @@
 # v0.1.0 local release-candidate report
 
-Status: local review candidate; not published, tagged, pushed, or released.
+Status: review candidate branch pushed for hosted CI; not merged, tagged, or released.
 
 ## Resulting behavior
 
@@ -27,6 +27,10 @@ small public project.
 - Source distribution and wheel build successfully.
 - The installed CLI help, safe example, unsafe JSON output, and Action runner
   have been exercised locally.
+- Hosted CI passed on Windows and Linux with Python 3.11, 3.12, and 3.13:
+  <https://github.com/Mismes/fbm-gcode-safety-analyzer/actions/runs/35527312681>
+- The hosted Action smoke workflow passed:
+  <https://github.com/Mismes/fbm-gcode-safety-analyzer/actions/runs/35527312697>
 - The mandatory comment, exact `G10`, and modal spindle/feed regressions are
   covered, including `G10` following an active `G1` mode.
 
@@ -42,24 +46,21 @@ small public project.
 - [x] SARIF 2.1.0 required structure is tested.
 - [x] Exit codes and failure thresholds are tested.
 - [x] More than 30 meaningful tests pass.
-- [x] Windows/Linux CI and an Action smoke workflow are configured.
+- [x] Windows/Linux CI and an Action smoke workflow are configured and pass.
 - [x] Synthetic safe/unsafe fixtures are included.
 - [x] README, contributing, security, changelog, roadmap, conduct, issue, and
   pull-request files are present.
 - [x] Limitations and the non-certification statement are prominent.
 - [x] The checkout contains no private or production G-code or research artifact.
-- [ ] Hosted Windows/Linux CI has passed. This requires an authorized GitHub push.
-- [ ] The GitHub Action has passed its hosted smoke workflow. This also requires
-  an authorized GitHub push.
+- [x] Hosted Windows/Linux CI has passed.
+- [x] The GitHub Action has passed its hosted smoke workflow.
 
 ## Remaining review risks
 
-The implementation has only been executed locally on Windows/Python 3.12. The
-CI matrix declares Python 3.11-3.13 on Windows and Linux, but hosted results do
-not exist yet. SARIF has structural tests but has not yet been uploaded to
-GitHub code scanning. The Action runner handles newline-separated paths and
-glob patterns; machine-readable output is most useful with one path because
-each analyzed file emits its own complete JSON or SARIF document.
+SARIF has structural tests but has not yet been uploaded to GitHub code
+scanning. The Action runner handles newline-separated paths and glob patterns;
+machine-readable output is most useful with one path because each analyzed
+file emits its own complete JSON or SARIF document.
 
 The parser remains intentionally bounded. Arc geometry is not validated,
 rapid-Z checking is not collision detection, and initial coordinates remain
@@ -68,7 +69,7 @@ is safe to execute.
 
 ## Publication boundary
 
-No branch, commit, pull request, tag, release, package, Action, or program
-application has been published from this checkout. GitHub push/PR/release,
-PyPI publication, and any Codex for Open Source application remain separate
-maintainer-authorized actions.
+The `codex/v0.1.0-rc` branch and its commits were pushed with maintainer
+authorization to run hosted checks. No pull request, merge, tag, release, PyPI
+package, advertised Action release, or program application has been created.
+Those operations remain separate maintainer-authorized actions.
