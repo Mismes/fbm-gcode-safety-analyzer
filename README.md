@@ -1,6 +1,6 @@
 # FBM G-code Safety Analyzer
 
-A fail-closed static analyzer for a bounded Fanuc-style G-code subset. It tracks modal state, applies configurable conservative checks, and emits stable console, JSON, or SARIF diagnostics for local use and CI.
+A conservative static analyzer for a bounded Fanuc-style G-code subset. It tracks modal state, applies configurable checks, and emits stable console, JSON, or SARIF diagnostics for local use and CI.
 
 > **Safety notice:** This tool cannot prove that G-code is safe and does not perform complete collision detection, controller emulation, or machine certification. Always use controller-specific verification, simulation, machine limits, a dry run, and qualified operator review before execution.
 
@@ -11,13 +11,25 @@ Python 3.11 or newer is required.
 ```bash
 git clone https://github.com/Mismes/fbm-gcode-safety-analyzer.git
 cd fbm-gcode-safety-analyzer
-git switch codex/v0.1.0-rc
 python -m pip install .
 fbm-gcode-check part.nc
 fbm-gcode-check part.nc --profile machine.toml
 fbm-gcode-check part.nc --format json
 fbm-gcode-check part.nc --format sarif > results.sarif
 ```
+
+Try the included synthetic examples before supplying your own files:
+
+```bash
+fbm-gcode-check examples/safe.nc --fail-on warning
+fbm-gcode-check examples/unsafe.nc --format json
+python tools/validate_examples.py
+```
+
+The first command exits 0, the second exits 1 with deliberate findings, and the
+last checks the public corpus against independently specified expected findings
+and exit codes. See the [walkthrough](docs/quickstart.md) and
+[validation contract](docs/public-validation.md).
 
 The built-in profile uses millimetres and a 2.0 mm rapid-Z clearance. For real review work, create and version a profile appropriate to the machine and workflow; the example is at `examples/generic-3axis-mm.toml`.
 
@@ -80,6 +92,11 @@ cannot be read, exit 2 is returned with no partial report.
 
 `--fail-on error` is the default. `--fail-on warning` makes any finding fail, and `--fail-on never` reports findings without returning exit code 1.
 
+For a stricter gate, use `--fail-on warning` with `unknown_code = "error"` in
+the profile. Default warning policy permits warning-only unsupported input to
+exit 0; ignoring unsupported commands can suppress those findings entirely.
+Neither policy establishes that an unsupported program is safe.
+
 ## Machine profiles
 
 Profiles use a versioned TOML contract:
@@ -101,10 +118,11 @@ unknown_code = "warning"
 
 ## GitHub Action
 
-Pin a released tag once one is available:
+For the current unreleased snapshot, pin the reviewed main commit. Update this
+pin after reviewing a later commit; a released tag will be documented after publication:
 
 ```yaml
-- uses: Mismes/fbm-gcode-safety-analyzer@v0.1.0
+- uses: Mismes/fbm-gcode-safety-analyzer@5a6b7aa3253bfd5e9fd482066ab7aae09132b454
   with:
     paths: path/to/part.nc
     profile: path/to/machine.toml
