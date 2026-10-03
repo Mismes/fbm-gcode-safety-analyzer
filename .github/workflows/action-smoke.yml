@@ -1,0 +1,24 @@
+name: Action smoke test
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  action-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check synthetic safe example
+        uses: ./
+        with:
+          paths: examples/safe.nc
+          profile: examples/generic-3axis-mm.toml
+          format: console
+          fail-on: error

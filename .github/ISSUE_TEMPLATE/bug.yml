@@ -1,0 +1,27 @@
+name: Bug report
+description: Report incorrect software behavior with a synthetic reproduction.
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: textarea
+    attributes:
+      label: Reproduction
+      description: Include minimal synthetic G-code, command, and observed output.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Version and platform
+    validations:
+      required: true
+  - type: checkboxes
+    attributes:
+      label: Data confirmation
+      options:
+        - label: The reproduction contains no private or production-machine data.
+          required: true

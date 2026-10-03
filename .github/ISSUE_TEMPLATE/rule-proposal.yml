@@ -1,0 +1,22 @@
+name: Rule proposal
+description: Propose one bounded, testable static rule.
+title: "[Rule proposal]: "
+labels: [enhancement, rules]
+body:
+  - type: textarea
+    attributes:
+      label: Exact trigger and diagnostic
+      description: Define inputs, state assumptions, severity, and message.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Safety value and limitations
+      description: Explain false positives, false negatives, and what the rule cannot claim.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Synthetic examples
+    validations:
+      required: true

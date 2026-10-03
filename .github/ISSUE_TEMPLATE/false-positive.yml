@@ -1,0 +1,28 @@
+name: False positive or false negative
+description: Report a safety diagnostic that is incorrect or unexpectedly absent.
+title: "[Rule behavior]: "
+labels: [rules]
+body:
+  - type: dropdown
+    attributes:
+      label: Result type
+      options: [False positive, False negative]
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Diagnostic code
+      placeholder: GSA001
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Synthetic reproduction and reasoning
+    validations:
+      required: true
+  - type: checkboxes
+    attributes:
+      label: Data confirmation
+      options:
+        - label: The reproduction contains no private or production-machine data.
+          required: true

@@ -1,0 +1,10 @@
+[profile]
+schema_version = 1
+name = "generic-3axis-mm"
+units = "mm"
+safe_rapid_z = 2.0
+
+[rules]
+require_spindle_for_cutting = true
+require_feed_for_cutting = true
+unknown_code = "warning"
