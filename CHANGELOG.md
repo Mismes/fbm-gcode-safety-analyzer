@@ -6,6 +6,10 @@ All notable changes are documented here. The project follows Semantic Versioning
 
 ### Added
 
+- Public synthetic corpus with explicit expected findings and CLI exit codes,
+  reproduced through JSON/SARIF at all three failure thresholds after wheel installation.
+- Quickstart walkthrough and maintainer feedback/release review guidance.
+
 - Conservative invalidation of state after unsupported/malformed input.
 - Finite-number and duplicate-word validation, lateral rapid clearance checks,
   and UTF-8 BOM support.

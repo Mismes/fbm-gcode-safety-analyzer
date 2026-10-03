@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "profile": "examples/generic-3axis-mm.toml",
+  "cases": [
+    {
+      "id": "baseline",
+      "path": "examples/safe.nc",
+      "purpose": "Modal spindle/feed persist over cutting blocks.",
+      "findings": []
+    },
+    {
+      "id": "inch",
+      "path": "examples/validation/inch-clearance.nc",
+      "purpose": "Inch rapid Z is converted to millimetres.",
+      "findings": []
+    },
+    {
+      "id": "incremental",
+      "path": "examples/validation/incremental-known.nc",
+      "purpose": "Incremental moves use established positions.",
+      "findings": []
+    },
+    {
+      "id": "lateral",
+      "path": "examples/validation/lateral-low-z.nc",
+      "purpose": "Lateral rapid inherits low Z.",
+      "findings": [
+        [
+          "GSA001",
+          "warning",
+          3
+        ],
+        [
+          "GSA001",
+          "warning",
+          4
+        ]
+      ]
+    },
+    {
+      "id": "spindle",
+      "path": "examples/validation/missing-spindle.nc",
+      "purpose": "Positive feed does not replace spindle activation.",
+      "findings": [
+        [
+          "GSA002",
+          "error",
+          3
+        ]
+      ]
+    },
+    {
+      "id": "feed",
+      "path": "examples/validation/missing-feed.nc",
+      "purpose": "Active spindle does not replace a positive feed.",
+      "findings": [
+        [
+          "GSA003",
+          "error",
+          4
+        ]
+      ]
+    },
+    {
+      "id": "duplicate",
+      "path": "examples/validation/duplicate-axis.nc",
+      "purpose": "Conflicting duplicate coordinates are rejected.",
+      "findings": [
+        [
+          "GSA004",
+          "error",
+          3
+        ]
+      ]
+    },
+    {
+      "id": "unsupported",
+      "path": "examples/validation/unsupported-command.nc",
+      "purpose": "Unsupported command reported under default warning policy.",
+      "findings": [
+        [
+          "GSA005",
+          "warning",
+          3
+        ]
+      ]
+    },
+    {
+      "id": "clearance",
+      "path": "examples/validation/unknown-clearance.nc",
+      "purpose": "Lateral rapid without known Z is rejected.",
+      "findings": [
+        [
+          "GSA006",
+          "error",
+          3
+        ]
+      ]
+    }
+  ]
+}

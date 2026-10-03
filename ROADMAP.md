@@ -8,7 +8,7 @@
 ## After v0.1.0
 
 - Collect public, synthetic false-positive and false-negative cases.
-- Add path-aware multi-file CLI output without weakening existing schemas.
+- Extend the public validation corpus from reproducible user reports; multi-file JSON/SARIF is already implemented.
 - Evaluate controller dialect modules only when each dialect has public documentation, a precise boundary, and dedicated tests.
 - Consider deeper arc validation and configurable travel limits as separately specified rules.
 
