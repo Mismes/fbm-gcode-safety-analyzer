@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from urllib.parse import quote
 
 from .. import __version__
 from ..analyzer import AnalysisResult
@@ -12,6 +13,11 @@ from ..diagnostics import RULE_DESCRIPTIONS, Severity
 
 def _uri(source: str) -> str:
     path = Path(source)
+    try:
+        relative = path.resolve().relative_to(Path.cwd().resolve())
+        return quote(relative.as_posix(), safe="/")
+    except ValueError:
+        pass
     try:
         return path.resolve().as_uri()
     except (OSError, ValueError):

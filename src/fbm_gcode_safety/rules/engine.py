@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import math
+
 from ..config import MachineProfile
 from ..diagnostics import Diagnostic, Severity
 from ..modal_state import ModalState, to_profile_units
@@ -40,7 +42,7 @@ def _report_unsupported(
     for word, code in [*g_codes, *m_codes]:
         supported = _SUPPORTED_G if word.address == "G" else _SUPPORTED_M
         if code is None or code not in supported:
-            unsupported_g = unsupported_g or word.address == "G"
+            unsupported_g = True
             item = _unknown(
                 profile,
                 block.line,
@@ -53,6 +55,7 @@ def _report_unsupported(
     known_addresses = {"N", "G", "M", "S", "F", *_AXES, *_ARC_WORDS}
     for word in block.words:
         if word.address not in known_addresses:
+            unsupported_g = True
             item = _unknown(
                 profile,
                 block.line,
@@ -73,6 +76,12 @@ def _apply_modes(
     unit_codes = {code for _, code in g_codes if code in {20, 21}}
     positioning_codes = {code for _, code in g_codes if code in {90, 91}}
     motion_codes = [code for _, code in g_codes if code in {0, 1, 2, 3}]
+    if len(_codes(block, "M")) > 1:
+        diagnostics.append(
+            Diagnostic(
+                "GSA004", Severity.ERROR, block.line, "Multiple spindle commands in one block"
+            )
+        )
     if len(unit_codes) > 1:
         diagnostics.append(
             Diagnostic("GSA006", Severity.ERROR, block.line, "Conflicting unit modes in one block")
@@ -106,7 +115,18 @@ def _apply_modes(
             )
         )
     if unit_codes:
-        state.units = "inch" if 20 in unit_codes else "mm"
+        new_units = "inch" if 20 in unit_codes else "mm"
+        if state.units is not None and state.units != new_units:
+            state.feed_rate = None
+            diagnostics.append(
+                Diagnostic(
+                    "GSA006",
+                    Severity.WARNING,
+                    block.line,
+                    "Units changed; set F again before cutting",
+                )
+            )
+        state.units = new_units
     if positioning_codes:
         state.positioning = "absolute" if 90 in positioning_codes else "incremental"
     if motion_codes:
@@ -172,6 +192,17 @@ def _update_position(
     if axes and state.units is not None and state.positioning is not None:
         for axis, value in axes.items():
             converted = to_profile_units(value, state.units, profile.units)
+            if not math.isfinite(converted):
+                target[axis] = None
+                diagnostics.append(
+                    Diagnostic(
+                        "GSA006",
+                        Severity.ERROR,
+                        block.line,
+                        f"Converted {axis} position is not finite",
+                    )
+                )
+                continue
             if state.positioning == "absolute":
                 target[axis] = converted
             elif state.position[axis] is None:
@@ -185,8 +216,22 @@ def _update_position(
                 )
             else:
                 target[axis] = state.position[axis] + converted
+                if not math.isfinite(target[axis]):
+                    target[axis] = None
+                    diagnostics.append(
+                        Diagnostic(
+                            "GSA006",
+                            Severity.ERROR,
+                            block.line,
+                            f"Accumulated {axis} position is not finite",
+                        )
+                    )
 
-    if has_motion and state.motion == 0 and "Z" in axes and target["Z"] is not None:
+    if has_motion and state.motion == 0 and target["Z"] is None:
+        diagnostics.append(
+            Diagnostic("GSA006", Severity.ERROR, block.line, "Rapid clearance Z is indeterminate")
+        )
+    if has_motion and state.motion == 0 and target["Z"] is not None:
         if target["Z"] < profile.safe_rapid_z:
             diagnostics.append(
                 Diagnostic(
@@ -209,6 +254,13 @@ def evaluate_block(
     if _report_unsupported(block, profile, diagnostics):
         # Axis words on an unsupported G-code block may be parameters rather
         # than motion, so never inherit a previous motion for this block.
+        state.motion = None
+        state.units = None
+        state.positioning = None
+        state.spindle = "stopped"
+        state.spindle_speed = None
+        state.feed_rate = None
+        state.position = {"X": None, "Y": None, "Z": None}
         return diagnostics
 
     modes = _apply_modes(block, state, diagnostics)
@@ -217,7 +269,12 @@ def evaluate_block(
     _, _, axes = modes
     _apply_spindle_and_feed(block, state)
 
-    has_motion = bool(axes) and state.motion in {0, 1, 2, 3}
+    arc_motion = state.motion in {2, 3} and any(word.address in _ARC_WORDS for word in block.words)
+    has_motion = (bool(axes) or arc_motion) and state.motion in {0, 1, 2, 3}
+    if axes and state.motion is None:
+        diagnostics.append(
+            Diagnostic("GSA006", Severity.ERROR, block.line, "Motion mode is indeterminate")
+        )
     if has_motion and state.units is None:
         diagnostics.append(
             Diagnostic(
@@ -238,5 +295,6 @@ def evaluate_block(
         )
 
     _check_cutting(block, state, profile, diagnostics, has_motion)
-    _update_position(block, state, profile, diagnostics, axes, has_motion)
+    if has_motion:
+        _update_position(block, state, profile, diagnostics, axes, has_motion)
     return diagnostics

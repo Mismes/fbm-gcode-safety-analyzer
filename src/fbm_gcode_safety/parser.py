@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 import re
 from dataclasses import dataclass
 
@@ -38,6 +39,7 @@ def _remove_comments(source: str, line: int) -> tuple[str, list[Diagnostic]]:
         if char == ";" and depth == 0:
             break
         if char == "(":
+            output.append(" ")
             if depth:
                 diagnostics.append(
                     Diagnostic("GSA004", Severity.ERROR, line, "Nested comment", column)
@@ -45,6 +47,7 @@ def _remove_comments(source: str, line: int) -> tuple[str, list[Diagnostic]]:
             depth += 1
             continue
         if char == ")":
+            output.append(" ")
             if depth == 0:
                 diagnostics.append(
                     Diagnostic("GSA004", Severity.ERROR, line, "Unmatched closing comment", column)
@@ -97,11 +100,27 @@ def parse_line(source: str, line: int) -> tuple[Block | None, list[Diagnostic]]:
                 position += 1
             continue
         raw_value = number.group(0)
-        words.append(Word(address, float(raw_value), raw_value, position + 1))
+        value = float(raw_value)
+        if not math.isfinite(value):
+            diagnostics.append(
+                Diagnostic(
+                    "GSA004", Severity.ERROR, line, "Numeric value is not finite", position + 1
+                )
+            )
+        words.append(Word(address, value, raw_value, position + 1))
         position = number.end()
 
     if diagnostics:
         return None, diagnostics
+    seen = set()
+    for word in words:
+        if word.address not in {"G", "M", "N"} and word.address in seen:
+            diagnostics.append(
+                Diagnostic(
+                    "GSA004", Severity.ERROR, line, f"Repeated {word.address} word", word.column
+                )
+            )
+        seen.add(word.address)
     line_numbers = [word for word in words if word.address == "N"]
     if len(line_numbers) > 1:
         diagnostics.append(

@@ -60,6 +60,14 @@ def load_profile(path: str | Path) -> MachineProfile:
     rules = data.get("rules")
     if not isinstance(profile, dict) or not isinstance(rules, dict):
         raise ProfileError("profile must contain [profile] and [rules] tables")
+    allowed_profile = {"schema_version", "name", "units", "safe_rapid_z"}
+    allowed_rules = {"require_spindle_for_cutting", "require_feed_for_cutting", "unknown_code"}
+    if (
+        set(data) - {"profile", "rules"}
+        or set(profile) - allowed_profile
+        or set(rules) - allowed_rules
+    ):
+        raise ProfileError("profile contains unknown tables or keys")
 
     schema_version = _require(profile, "schema_version", int)
     name = _require(profile, "name", str)

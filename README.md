@@ -9,7 +9,10 @@ A fail-closed static analyzer for a bounded Fanuc-style G-code subset. It tracks
 Python 3.11 or newer is required.
 
 ```bash
-python -m pip install fbm-gcode-safety-analyzer
+git clone https://github.com/Mismes/fbm-gcode-safety-analyzer.git
+cd fbm-gcode-safety-analyzer
+git switch codex/v0.1.0-rc
+python -m pip install .
 fbm-gcode-check part.nc
 fbm-gcode-check part.nc --profile machine.toml
 fbm-gcode-check part.nc --format json
@@ -17,6 +20,16 @@ fbm-gcode-check part.nc --format sarif > results.sarif
 ```
 
 The built-in profile uses millimetres and a 2.0 mm rapid-Z clearance. For real review work, create and version a profile appropriate to the machine and workflow; the example is at `examples/generic-3axis-mm.toml`.
+
+This is an unreleased candidate. A PyPI installation command will be added
+after publication. Checks supplement simulation and operator review.
+
+Malformed blocks, unsupported words, and unsupported commands invalidate modal
+state. Following motion must establish its modes, spindle, feed, and position
+again. Unsupported reporting may be configured, but it does not make those
+commands supported. Empty/comment-only files fail analysis. A unit change
+invalidates the modal feed; set F again before cutting. Repeated numeric
+addresses and multiple spindle commands in a block are rejected.
 
 ## Supported subset
 
@@ -52,6 +65,12 @@ part.nc:18: GSA002 ERROR Cutting move encountered without an active spindle and 
 ```
 
 JSON contains `status`, `source`, and a `diagnostics` array. Every diagnostic contains `rule`, `severity`, `line`, and `message`, with `column` when known. SARIF output follows SARIF 2.1.0 and includes physical file locations.
+
+Multiple paths can be supplied: `fbm-gcode-check first.nc second.nc --format json`.
+Batch JSON contains an aggregate `status` and a `files` array of the single-file
+objects. Batch SARIF is one document containing a run per file. Paths within
+the current working directory use escaped relative URIs in SARIF. If any input
+cannot be read, exit 2 is returned with no partial report.
 
 ## Exit codes and failure threshold
 
@@ -99,7 +118,7 @@ The repository smoke-tests the local Action with the synthetic safe example. No 
 
 ```bash
 python -m pip install -e ".[dev]"
-python -m pytest
+python -m pytest --cov=fbm_gcode_safety --cov-report=term-missing
 python -m ruff check .
 python -m build
 ```

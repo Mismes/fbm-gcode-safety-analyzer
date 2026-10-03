@@ -23,7 +23,17 @@ classifiers = [
 fbm-gcode-check = "fbm_gcode_safety.cli:main"
 
 [project.optional-dependencies]
-dev = ["build>=1.2", "pytest>=8.3", "ruff>=0.8"]
+dev = ["build>=1.2", "pytest>=8.3", "ruff>=0.8", "pytest-cov>=6", "jsonschema>=4.23"]
+
+[project.urls]
+Repository = "https://github.com/Mismes/fbm-gcode-safety-analyzer"
+Issues = "https://github.com/Mismes/fbm-gcode-safety-analyzer/issues"
+
+[tool.coverage.run]
+source = ["fbm_gcode_safety"]
+
+[tool.coverage.report]
+show_missing = true
 
 [tool.setuptools.packages.find]
 where = ["src"]
