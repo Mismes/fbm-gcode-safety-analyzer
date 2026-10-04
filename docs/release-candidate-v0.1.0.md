@@ -1,75 +1,53 @@
-# v0.1.0 local release-candidate report
+# v0.1.0 release readiness
 
-Status: review candidate branch pushed for hosted CI; not merged, tagged, or released.
+Status: local release preparation; no tag or Release created by this preparation.
+The maintainer must authorize public operations separately.
 
-## Resulting behavior
+This report supersedes the earlier 56-test candidate snapshot. The implementation
+and public corpus were merged through PR #1 and PR #2. The release preparation
+updates documentation only; package version remains 0.1.0 (Alpha).
 
-The original hard-coded demonstration script has been replaced by an
-installable Python package and `fbm-gcode-check` command. The analyzer now uses
-exact comment-aware word tokenization, tracks the documented motion, unit,
-positioning, spindle, speed, feed, and coordinate state, and reports GSA001
-through GSA006 as structured diagnostics.
+## Behavior
 
-A version 1 TOML machine profile owns the rapid-Z threshold and rule policy.
-Console, JSON, and SARIF 2.1.0 outputs share the same findings. Exit codes
-separate analysis findings from invocation and configuration failures, while
-`--fail-on` controls the CI threshold.
+The installable Python package provides bounded Fanuc-style static checks,
+version 1 TOML profiles, GSA001-GSA006, console/JSON/SARIF output, batch CLI,
+and a composite GitHub Action. Unsupported or malformed input invalidates modal
+state. Warning policy and exit thresholds are configurable; analysis success
+never establishes machine safety.
 
-The repository also contains synthetic safe and unsafe programs, Windows/Linux
-CI configuration, a reusable composite Action with path/profile/format/failure
-inputs, an Action smoke workflow, and the maintenance documents required for a
-small public project.
+## Verified public baseline
 
-## Verification evidence
+Baseline: `965e6e4d428c523a1e1cbcc918b81e435f85ce87`.
 
-- 56 behavior-focused tests pass on Windows with Python 3.12.
-- Ruff reports no lint errors.
-- Source distribution and wheel build successfully.
-- The installed CLI help, safe example, unsafe JSON output, and Action runner
-  have been exercised locally.
-- Hosted CI passed on Windows and Linux with Python 3.11, 3.12, and 3.13:
-  <https://github.com/Mismes/fbm-gcode-safety-analyzer/actions/runs/35527312681>
-- The hosted Action smoke workflow passed:
-  <https://github.com/Mismes/fbm-gcode-safety-analyzer/actions/runs/35527312697>
-- The mandatory comment, exact `G10`, and modal spindle/feed regressions are
-  covered, including `G10` following an active `G1` mode.
+- [Merged PR #1](https://github.com/Mismes/fbm-gcode-safety-analyzer/pull/1)
+- [Merged PR #2](https://github.com/Mismes/fbm-gcode-safety-analyzer/pull/2)
+- [Baseline CI](https://github.com/Mismes/fbm-gcode-safety-analyzer/actions/runs/37126578188): Windows/Linux, Python 3.11-3.13, success.
+- [Baseline Action smoke](https://github.com/Mismes/fbm-gcode-safety-analyzer/actions/runs/37126578163): success.
+- Existing test suite: 76 tests; baseline line coverage 96%.
+- Public synthetic corpus: 9 cases, 54 JSON/SARIF and exit-policy checks.
 
-## Acceptance checklist
+These hosted results apply to the baseline commit, not to subsequent preparation
+commits. A new release commit must pass its own hosted checks before tagging.
+Detailed local preparation logs, distribution hashes and environment information
+are retained in the maintainer's separate OSS output directory.
 
-- [x] Package builds and installs in an isolated local environment.
-- [x] `fbm-gcode-check --help` works.
-- [x] The bounded Fanuc-style subset is documented.
-- [x] Comments and exact word boundaries are tested.
-- [x] Modal spindle, feed, unit, positioning, and coordinate behavior is tested.
-- [x] A validated machine profile replaces the hard-coded threshold.
-- [x] GSA001-GSA006 and stable console/JSON contracts exist.
-- [x] SARIF 2.1.0 required structure is tested.
-- [x] Exit codes and failure thresholds are tested.
-- [x] More than 30 meaningful tests pass.
-- [x] Windows/Linux CI and an Action smoke workflow are configured and pass.
-- [x] Synthetic safe/unsafe fixtures are included.
-- [x] README, contributing, security, changelog, roadmap, conduct, issue, and
-  pull-request files are present.
-- [x] Limitations and the non-certification statement are prominent.
-- [x] The checkout contains no private or production G-code or research artifact.
-- [x] Hosted Windows/Linux CI has passed.
-- [x] The GitHub Action has passed its hosted smoke workflow.
+## Release gates
 
-## Remaining review risks
+1. Review [release notes](release-notes-v0.1.0.md), supported subset and limitations.
+2. Build wheel and sdist, and inspect contents for version, license and public-only files.
+3. Install the actual artifacts in isolated environments, then check CLI examples,
+   all tests, public corpus, and dependency consistency.
+4. Obtain authorization to push the documentation branch, create a PR and merge
+   after green hosted CI and Action smoke checks.
+5. Tag the verified merged commit, publish Release notes and attach tested artifacts
+   only with explicit authorization. Record the final tag/commit mapping and hashes.
+6. Keep PyPI publication and any OSS program application separately authorized.
 
-SARIF has structural tests but has not yet been uploaded to GitHub code
-scanning. The Action runner handles newline-separated paths and glob patterns;
-machine-readable output is most useful with one path because each analyzed
-file emits its own complete JSON or SARIF document.
+## Limits
 
-The parser remains intentionally bounded. Arc geometry is not validated,
-rapid-Z checking is not collision detection, and initial coordinates remain
-unknown until established. Passing analysis is never evidence that a program
-is safe to execute.
+SARIF is schema-validated but GitHub code-scanning upload is not claimed as tested.
+Arc geometry, collision detection, tools, stock, fixtures, travel limits and
+controller emulation are outside the supported contract. No CNC machine has
+validated the synthetic corpus. Public adoption is not established by these tests.
 
-## Publication boundary
-
-The `codex/v0.1.0-rc` branch and its commits were pushed with maintainer
-authorization to run hosted checks. No pull request, merge, tag, release, PyPI
-package, advertised Action release, or program application has been created.
-Those operations remain separate maintainer-authorized actions.
+No private research or thesis files are required for any release gate.

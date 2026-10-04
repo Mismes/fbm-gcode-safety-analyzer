@@ -4,6 +4,8 @@ All notable changes are documented here. The project follows Semantic Versioning
 
 ## [Unreleased]
 
+## [0.1.0] — prepared for publication; not yet released
+
 ### Added
 
 - Public synthetic corpus with explicit expected findings and CLI exit codes,
