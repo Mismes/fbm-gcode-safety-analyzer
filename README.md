@@ -33,8 +33,10 @@ and exit codes. See the [walkthrough](docs/quickstart.md) and
 
 The built-in profile uses millimetres and a 2.0 mm rapid-Z clearance. For real review work, create and version a profile appropriate to the machine and workflow; the example is at `examples/generic-3axis-mm.toml`.
 
-This is an unreleased candidate. A PyPI installation command will be added
-after publication. Checks supplement simulation and operator review.
+Install from source using the steps above. PyPI publication is separate; a PyPI
+installation command will be added after it is verified. Published versions are
+listed on the [Releases page](https://github.com/Mismes/fbm-gcode-safety-analyzer/releases).
+Checks supplement simulation and operator review.
 
 Malformed blocks, unsupported words, and unsupported commands invalidate modal
 state. Following motion must establish its modes, spindle, feed, and position
@@ -118,11 +120,11 @@ unknown_code = "warning"
 
 ## GitHub Action
 
-For the current unreleased snapshot, pin the reviewed main commit. Update this
-pin after reviewing a later commit; a released tag will be documented after publication:
+Pin the reviewed commit below. Update this pin after reviewing a later commit;
+release tags can be checked on the Releases page before use:
 
 ```yaml
-- uses: Mismes/fbm-gcode-safety-analyzer@5a6b7aa3253bfd5e9fd482066ab7aae09132b454
+- uses: Mismes/fbm-gcode-safety-analyzer@965e6e4d428c523a1e1cbcc918b81e435f85ce87
   with:
     paths: path/to/part.nc
     profile: path/to/machine.toml
@@ -130,7 +132,8 @@ pin after reviewing a later commit; a released tag will be documented after publ
     fail-on: error
 ```
 
-The repository smoke-tests the local Action with the synthetic safe example. No published Action or release is claimed until the maintainer publishes one.
+The repository smoke-tests the local Action with the synthetic safe example.
+Use `actions/setup-python` to select Python 3.11+ before invoking this Action.
 
 ## Development
 
