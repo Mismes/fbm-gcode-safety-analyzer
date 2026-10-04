@@ -1,7 +1,8 @@
-# v0.1.0 — first public release (prepared notes)
+# v0.1.0 — first public release
 
-These notes are ready for maintainer review. This file does not establish that
-a tag, GitHub Release, PyPI package or program application has been published.
+Publication status and downloadable assets are recorded on the
+[Releases page](https://github.com/Mismes/fbm-gcode-safety-analyzer/releases).
+PyPI publication and program applications are separate from this GitHub release.
 
 ## Purpose
 

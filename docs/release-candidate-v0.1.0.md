@@ -1,7 +1,7 @@
 # v0.1.0 release readiness
 
-Status: local release preparation; no tag or Release created by this preparation.
-The maintainer must authorize public operations separately.
+Preparation snapshot: 2026-10-05, before publication. Public operations were
+separately authorized by the maintainer. See the Releases page for publication status.
 
 This report supersedes the earlier 56-test candidate snapshot. The implementation
 and public corpus were merged through PR #1 and PR #2. The release preparation
